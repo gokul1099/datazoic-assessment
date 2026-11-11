@@ -1,12 +1,12 @@
 import argparse
-import json
 
 from dotenv import load_dotenv
 
+from app.ingest.embed import EMBEDDING_DIMENSION
 from app.ingest.enrich import DEFAULT_MODEL
 from app.ingest.pipeline import run_embedding, run_enrichment, run_pipeline
+from app.ingest.sql_store import create_schema, get_connection, store_tools as store_rows
 from app.ingest.store import COLLECTION_NAME, create_collection, get_client, store_tools
-from app.ingest.embed import EMBEDDING_DIMENSION
 
 
 def main():
@@ -28,13 +28,17 @@ def main():
         tools = run_enrichment(tools, args.model, args.limit)
         print(f"Enriched {len(tools)} tools with {args.model}")
 
-    vectors = run_embedding(tools)
+    with get_connection() as conn:
+        create_schema(conn)
+        print(f"Stored {store_rows(conn, tools)} tool rows in PostgreSQL (source of truth)")
+
+    texts, vectors = run_embedding(tools)
     print(f"Embedded {len(vectors)} tools")
 
     client = get_client(args.db)
     create_collection(client, EMBEDDING_DIMENSION)
-    stored = store_tools(client, tools, vectors)
-    print(f"Stored {stored} tools in {args.db} (collection {COLLECTION_NAME})")
+    stored = store_tools(client, tools, texts, vectors)
+    print(f"Stored {stored} tools in {args.db} (collection {COLLECTION_NAME}, dense + BM25)")
 
     for tool in tools[: args.preview]:
         print(f"- [{tool['action_type']}] {tool['method']} {tool['path']} ({tool['domain']})")

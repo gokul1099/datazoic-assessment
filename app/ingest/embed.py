@@ -7,16 +7,14 @@ EMBED_BATCH_SIZE = 100
 
 
 def build_embedding_text(tool):
+    enrichment = tool.get("enrichment") or {}
+    description = enrichment.get("description") or tool["description"]
     parts = [
         tool["tool_name"],
-        f"{tool['method']} {tool['path']}",
         f"domain: {tool['domain']}",
-        tool["description"],
+        description,
+        *enrichment.get("example_queries", []),
     ]
-    enrichment = tool.get("enrichment")
-    if enrichment:
-        parts.append(enrichment["description"])
-        parts.extend(enrichment["example_queries"])
     return "\n".join(part for part in parts if part)
 
 
