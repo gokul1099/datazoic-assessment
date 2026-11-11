@@ -1,3 +1,6 @@
 fastapi>=0.115.0
 uvicorn>=0.30.0
 pymilvus[milvus_lite]>=2.5.0
+groq>=0.13.0
+python-dotenv>=1.0.0
+openai>=1.50.0
