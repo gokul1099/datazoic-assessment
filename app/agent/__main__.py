@@ -31,26 +31,27 @@ def run_query(graph, query, thread_id):
         "candidates": [],
         "approvals": {},
     }
-    log_event(thread_id, "query", query=query)
     result = graph.invoke(state, config)
     while "__interrupt__" in result:
         pending = result["__interrupt__"][0].value["pending_approvals"]
         result = graph.invoke(Command(resume=ask_approvals(pending)), config)
     answer = result["messages"][-1].content
-    log_event(thread_id, "answer", query=query, result={"answer": answer})
+    log_event(thread_id, "turn", query=query, result={"answer": answer})
     return answer
 
 
 def main():
     parser = argparse.ArgumentParser(prog="agent")
     parser.add_argument("query", nargs="*")
+    parser.add_argument("--session", default=None)
     args = parser.parse_args()
 
     load_dotenv()
     create_log_table()
     graph = build_graph()
-    thread_id = str(uuid.uuid4())
+    thread_id = args.session or str(uuid.uuid4())
     query = " ".join(args.query) or input("You: ").strip()
+    print(f"[session {thread_id}]")
     print(run_query(graph, query, thread_id))
 
 

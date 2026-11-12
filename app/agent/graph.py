@@ -104,14 +104,15 @@ def tools_node(state):
         outcomes = list(pool.map(lambda call: run_call(call, records, approvals, thread_id), calls))
     messages = []
     for call, (result, status) in zip(calls, outcomes):
-        log_event(
-            thread_id,
-            "tool_call",
-            tool_name=call["name"],
-            arguments=call["args"],
-            status=status,
-            result=result,
-        )
+        if call["name"] not in BUILTIN_NAMES:
+            log_event(
+                thread_id,
+                "tool_call",
+                tool_name=call["name"],
+                arguments=call["args"],
+                status=status,
+                result=result,
+            )
         messages.append(ToolMessage(content=json.dumps(result, default=str), tool_call_id=call["id"], name=call["name"]))
     return {"messages": messages}
 
