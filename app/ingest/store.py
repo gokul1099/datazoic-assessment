@@ -61,6 +61,7 @@ def build_filter(domain=None, action_type=None):
 
 
 def hybrid_search(client, query_text, query_vector, limit=10, domain=None, action_type=None, name=COLLECTION_NAME):
+    client.load_collection(name)
     expr = build_filter(domain, action_type)
     dense = AnnSearchRequest(
         data=[query_vector],
