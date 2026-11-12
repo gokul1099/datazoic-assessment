@@ -16,5 +16,5 @@ def run_enrichment(tools, model, limit=None):
 
 def run_embedding(tools):
     texts = [build_embedding_text(tool) for tool in tools]
-    vectors = embed_texts(texts)
+    vectors = embed_texts(texts, progress=True)
     return texts, vectors

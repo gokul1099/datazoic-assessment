@@ -2,6 +2,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 
 from groq import Groq
+from tqdm import tqdm
 
 
 DEFAULT_MODEL = "openai/gpt-oss-120b"
@@ -169,7 +170,8 @@ def enrich_tools(tools, model=DEFAULT_MODEL, limit=None):
     valid_ids = {tool["id"] for tool in tools}
     targets = tools[:limit] if limit else tools
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        results = list(pool.map(lambda tool: enrich_tool(client, model, tool, catalog, valid_ids), targets))
+        calls = pool.map(lambda tool: enrich_tool(client, model, tool, catalog, valid_ids), targets)
+        results = list(tqdm(calls, total=len(targets), desc="Enriching", unit="tool"))
     for tool, enrichment in zip(targets, results):
         tool["enrichment"] = enrichment
     return targets

@@ -21,7 +21,7 @@ def main():
         print(f"No .md or .txt documents found in {args.source}; knowledge base not changed")
         return
 
-    vectors = embed_texts([chunk["text"] for chunk in chunks])
+    vectors = embed_texts([chunk["text"] for chunk in chunks], progress=True)
     client = get_client(args.db)
     create_collection(client, EMBEDDING_DIMENSION)
     stored = store_chunks(client, chunks, vectors)

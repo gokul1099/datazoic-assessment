@@ -21,6 +21,14 @@ def main():
 
     load_dotenv()
 
+    try:
+        client = get_client(args.db)
+    except Exception as error:
+        raise SystemExit(
+            f"Cannot open {args.db}: {error}\n"
+            "Milvus Lite allows one process at a time. Stop the UI or agent (python -m app.ui / app.agent) and run ingest again."
+        )
+
     tools = run_pipeline(args.collection)
     print(f"Parsed {len(tools)} tools from {args.collection}")
 
@@ -35,7 +43,6 @@ def main():
     texts, vectors = run_embedding(tools)
     print(f"Embedded {len(vectors)} tools")
 
-    client = get_client(args.db)
     create_collection(client, EMBEDDING_DIMENSION)
     stored = store_tools(client, tools, texts, vectors)
     print(f"Stored {stored} tools in {args.db} (collection {COLLECTION_NAME}, dense + BM25)")

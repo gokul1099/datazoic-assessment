@@ -1,4 +1,5 @@
 from pymilvus import AnnSearchRequest, DataType, Function, FunctionType, MilvusClient, RRFRanker
+from tqdm import tqdm
 
 
 COLLECTION_NAME = "paypal_tools"
@@ -46,8 +47,11 @@ def store_tools(client, tools, texts, vectors, name=COLLECTION_NAME):
         }
         for tool, text, vector in zip(tools, texts, vectors)
     ]
-    for start in range(0, len(rows), INSERT_BATCH_SIZE):
-        client.insert(name, rows[start:start + INSERT_BATCH_SIZE])
+    with tqdm(total=len(rows), desc="Storing vectors", unit="tool") as bar:
+        for start in range(0, len(rows), INSERT_BATCH_SIZE):
+            batch = rows[start:start + INSERT_BATCH_SIZE]
+            client.insert(name, batch)
+            bar.update(len(batch))
     return len(rows)
 
 

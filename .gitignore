@@ -1,4 +1,41 @@
-.venv/
-__pycache__/
-*.pyc
+# Secrets
 .env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Generated data (recreate with `python -m app.ingest`)
+data/milvus_tools.db
+data/milvus_tools.db/
+*.db
+*.db.lock
+
+# Gradio
+.gradio/
+flagged/
+
+# Logs
+*.log
+
+# Editor and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local AI tooling state
+.claude/
+.claude-flow/
+.swarm/
+.codegraph/
